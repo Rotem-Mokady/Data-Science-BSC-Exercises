@@ -21,7 +21,7 @@ def threebonacci_rec(n: int) -> int:
 def k_bonacci(n: int, k: int):
     if n < k:
         return n
-    result = sum([k_bonacci(n - i, k) for i in range(1, k + 1)])
+    result = sum([k_bonacci(n - i - 1, k) for i in range(k)])
     return result
 
 
