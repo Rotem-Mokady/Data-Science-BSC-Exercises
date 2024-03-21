@@ -18,7 +18,7 @@ def threebonacci_rec(n: int) -> int:
 #########################################
 # Question 1.b - do not delete this comment
 #########################################
-def k_bonacci(n: int, k: int):
+def k_bonacci(n: int, k: int) -> int:
     if n < k:
         return n
     result = sum([k_bonacci(n - i - 1, k) for i in range(k)])
@@ -28,8 +28,13 @@ def k_bonacci(n: int, k: int):
 #########################################
 # Question 2 - do not delete this comment
 #########################################
-def climb_combinations(n):
-    pass  # replace this with your implementation
+def climb_combinations(n: int) -> int:
+    if n <= 3:
+        return 1
+    result = climb_combinations(n - 1) + climb_combinations(n - 4)
+    return result
+
+
 
 
 #########################################
@@ -93,8 +98,15 @@ if __name__ == "__main__":
     #Question 2 tests - you can and should add more
     print("Question 2.a tests")
     print(climb_combinations(1) == 1)
+    print(climb_combinations(4) == 2)
     print(climb_combinations(5) == 3)
     print(climb_combinations(6) == 4)
+    print(climb_combinations(7) == 5)
+    print(climb_combinations(8) == 7)
+    print(climb_combinations(9) == 10)
+    print(climb_combinations(10) == 14)
+    print(climb_combinations(11) == 19)
+    print(climb_combinations(12) == 26)
 
     #Question 3.a tests - you can and should add more
     print("Question 3 tests")
