@@ -1,0 +1,120 @@
+PRINT m1:
+Drinks: coke, lemonade
+Snacks: bamba, mars
+No bill yet
+------------------
+PRINT m2:
+Drinks: beer, lemonade
+Snacks: m&m
+No bill yet
+------------------
+PRINT h:
+Dan Hotel has: 2/4 occupied rooms.
+------------------
+CALL: h.send_cleaner("Liat")
+Room number: 102
+Guests: liat
+Clean level: 8
+Is suite: False
+Satisfaction: 0.5
+Minibar:
+Drinks: coke, lemonade
+Snacks: bamba, mars
+No bill yet
+------------------
+CALL: liat_room.eat("bamba")
+None
+------------------
+PRINT liat_room.minibar:
+Drinks: coke, lemonade
+Snacks: mars
+Bill: 8
+------------------
+CALL: liat_room.drink("lemonade")
+None
+------------------
+PRINT liat_room.minibar:
+Drinks: coke
+Snacks: mars
+Bill: 28
+------------------
+CALL: h.upgrade("Liat")
+Room number: 514
+Guests: liat
+Clean level: 5
+Is suite: True
+Satisfaction: 0.6
+Minibar:
+Drinks: beer, lemonade
+Snacks: m&m
+Bill: 28
+------------------
+CALL: h.check_out("Ronen")
+Room number: 210
+Guests: empty
+Clean level: 6
+Is suite: True
+Satisfaction: 0.5
+Minibar:
+Drinks: beer, lemonade
+Snacks: m&m
+No bill yet
+------------------
+CALL: h.check_out("Ronen")
+None
+------------------
+CALL: h.check_in(["Alice", "Wonder"], True)
+Room number: 223
+Guests: alice, wonder
+Clean level: 6
+Is suite: True
+Satisfaction: 0.5
+Minibar:
+Drinks: beer, lemonade
+Snacks: m&m
+No bill yet
+------------------
+CALL: h.check_in(["Alex"], True)
+Room number: 210
+Guests: alex
+Clean level: 6
+Is suite: True
+Satisfaction: 0.5
+Minibar:
+Drinks: beer, lemonade
+Snacks: m&m
+No bill yet
+------------------
+PRINT h:
+Dan Hotel has: 3/4 occupied rooms.
+------------------
+CALL: h.check_in(["Oded", "Shani"], False)
+Room number: 102
+Guests: oded, shani
+Clean level: 8
+Is suite: False
+Satisfaction: 0.5
+Minibar:
+Drinks: coke
+Snacks: mars
+No bill yet
+------------------
+CALL: h.check_in(["Oded", "Shani"], False)None
+------------------
+CALL: h.check_out("Liat")
+Room number: 514
+Guests: empty
+Clean level: 5
+Is suite: True
+Satisfaction: 0.6
+Minibar:
+Drinks: beer, lemonade
+Snacks: m&m
+No bill yet
+------------------
+CALL: h.check_out("Liat")
+None
+------------------
+PRINT h:
+Dan Hotel has: 3/4 occupied rooms.
+------------------
