@@ -1,6 +1,6 @@
 ''' Exercise #67. Python for Engineers.'''
 import sys
-from typing import Union
+from typing import Union, List
 
 sys.setrecursionlimit(10000)
 
@@ -80,15 +80,34 @@ def weigh_str_efficient(input_str: str, index: int = 0) -> Union[int, float]:
 #########################################
 # Question 4 - do not delete this comment
 #########################################
-def find_num_changes_rec(n, lst):
-    pass  # replace this with your implementation
+def find_num_changes_rec(n: int, lst: List[int]) -> int:
+    if not n:
+        return 1
+    if n < 0 or not lst:
+        return 0
 
+    array_prep = sorted(set(lst))
+    greater_num, new_array = array_prep[-1], array_prep[:-1]
+
+    result = find_num_changes_rec(n - greater_num, array_prep) + find_num_changes_rec(n, new_array)
+    return result
 
 #########################################
 # Question 5.a - do not delete this comment
 #########################################
-def sum_nested(lst):
-    pass  # replace this with your implementation
+
+
+def sum_nested(lst: Union[int, float, str, List]) -> float:
+    if isinstance(lst, str):
+        return 0.0
+    elif isinstance(lst, (int, float)):
+        return float(abs(lst))
+    elif isinstance(lst, List):
+        first_obj, next_array = lst[0], lst[1:] if len(lst) > 1 else 0
+        result = sum_nested(first_obj) + sum_nested(next_array)
+        return result
+    else:
+        raise TypeError(f"input type {type(lst).__name__} is inappropriate ")
 
 
 #########################################
@@ -159,6 +178,9 @@ if __name__ == "__main__":
     print(find_num_changes_rec(5,[1,2,5,6]) == 4)
     print(find_num_changes_rec(4,[1,2,5,6]) == 3)
     print(find_num_changes_rec(0,[1,2,5,6]) == 1)
+    print(find_num_changes_rec(-1, [1, 2, 5, 6]) == 0)
+    print(find_num_changes_rec(20, []) == 0)
+    print(find_num_changes_rec(1, [3,4,5]) == 0)
     print(find_num_changes_rec(105,[1,105,999,100]) ==3)
 
     #Question 5.a tests - you can and should add more
