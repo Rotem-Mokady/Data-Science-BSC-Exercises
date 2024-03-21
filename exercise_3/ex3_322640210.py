@@ -100,21 +100,33 @@ def find_num_changes_rec(n: int, lst: List[int]) -> int:
 def sum_nested(lst: Union[int, float, str, List]) -> float:
     if isinstance(lst, str):
         return 0.0
+
     elif isinstance(lst, (int, float)):
         return float(abs(lst))
+
     elif isinstance(lst, List):
         first_obj, next_array = lst[0], lst[1:] if len(lst) > 1 else 0
         result = sum_nested(first_obj) + sum_nested(next_array)
-        return result
+        return float(result)
+
     else:
-        raise TypeError(f"input type {type(lst).__name__} is inappropriate ")
+        raise TypeError(f"input type {type(lst).__name__} is inappropriate.")
 
 
 #########################################
 # Question 5.b - do not delete this comment
 #########################################
-def count_construct(target, word_bank):
-    pass  # replace this with your implementation
+def count_construct(target: str, word_bank: List[str]) -> int:
+    if not target:
+        return 1
+
+    rm_dup_array = list(set(word_bank))
+
+    return sum([
+        (count_construct(target=target[len(word):], word_bank=word_bank) if target.startswith(word) else 0)
+        for word in rm_dup_array
+    ])
+
 
 
 #########################
@@ -191,8 +203,9 @@ if __name__ == "__main__":
 
     #Question 5.b tests - you can and should add more
     print("Question 5.b tests")
-    print(count_construct('purple', ["purp", "p", "ur", "le", "purpl"]) == 2)
+    print(count_construct('purple', ["purp", "p", "ur", "le", "purpl", "le"]) == 2)
     print(count_construct('abcdef', ["ab", "abc", "cd", "def", "abcd"]) == 1)
+    print(count_construct('orange', ["an", "nge", "ora", "ange", "or"]) == 2)
     print(count_construct('aaaaaaaaaaaaaaaaaaaaaaaz', ["a", "aa", "aaa", "aaaa", "aaaaa"]) == 0)
 
     pass
