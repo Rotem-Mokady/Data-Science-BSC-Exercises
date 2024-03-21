@@ -1,5 +1,6 @@
 ''' Exercise #67. Python for Engineers.'''
 import sys
+from typing import Union
 
 sys.setrecursionlimit(10000)
 
@@ -29,26 +30,51 @@ def k_bonacci(n: int, k: int) -> int:
 # Question 2 - do not delete this comment
 #########################################
 def climb_combinations(n: int) -> int:
+    if n < 0:
+        raise RuntimeError("input number must be positive")
     if n <= 3:
         return 1
     result = climb_combinations(n - 1) + climb_combinations(n - 4)
     return result
 
-
-
-
 #########################################
 # Question 3.a - do not delete this comment
 #########################################
-def weigh_str(input_str):
-    pass  # replace this with your implementation
+
+
+def weigh_str(input_str: str) -> Union[int, float]:
+    if not input_str:
+        raise RuntimeError("input must include one char at least")
+    if len(input_str) == 1:
+        return 0
+
+    current_calc = ord(input_str[0]) - ord(input_str[-1])
+    current_result = current_calc / abs(current_calc) if current_calc else 0
+
+    next_input_str = input_str[1:-1]
+    general_result = current_result + (0 if not next_input_str else weigh_str(input_str=next_input_str))
+
+    return general_result
 
 
 #########################################
 # Question 3.b - do not delete this comment
 #########################################
-def weigh_str_efficient(input_str, index=0):
-    pass # replace this with your implementation
+def weigh_str_efficient(input_str: str, index: int = 0) -> Union[int, float]:
+    if not input_str:
+        raise RuntimeError("input must include one char at least")
+
+    right_idx = len(input_str) - index - 1
+    if index >= right_idx:
+        return 0
+
+    current_calc = ord(input_str[index]) - ord(input_str[right_idx])
+    current_result = current_calc / abs(current_calc) if current_calc else 0
+
+    next_idx = index + 1
+    general_result = current_result + weigh_str_efficient(input_str=input_str, index=next_idx)
+
+    return general_result
 
 
 #########################################
