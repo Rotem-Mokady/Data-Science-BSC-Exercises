@@ -113,9 +113,9 @@ class Room:
     def _repr_values_handler(key: str, val: Any) -> str:
         fixed_key_name = key.replace('_', ' ').strip().title()
 
-        if key == '_minibar':
+        if key == 'minibar':
             return f'{fixed_key_name}:\n{val.__repr__()}'
-        if key != '_guests':
+        if key != 'guests':
             return f'{fixed_key_name}: {val}'
         if not val:
             return f'{fixed_key_name}: empty'
@@ -123,9 +123,9 @@ class Room:
 
     @property
     def _ordered_attrs(self) -> Dict[str, Any]:
-        minibar_key_name = '_minibar'
+        minibar_key_name = 'minibar'
         result = {
-            **{key: val for key, val in self.__dict__.items() if key != minibar_key_name},
+            **{key: val for key, val in self.__dict__.items() if key != minibar_key_name and not key.startswith('_')},
             **{minibar_key_name: self.minibar}
         }
 
