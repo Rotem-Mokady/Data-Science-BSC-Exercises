@@ -3,7 +3,7 @@ import pandas as pd
 
 import imageio.v3 as iio
 
-from typing import List
+from typing import List, Union, Tuple
 
 
 #######################################################################
@@ -26,20 +26,29 @@ def get_distance_from_linear_change(training_data) -> np.ndarray:
 
 #######################################################################
 # Question 2 - image processing
-def np_array_to_ascii(darr):
+def np_array_to_ascii(darr: np.ndarray) -> str:
     return ''.join([chr(item) for item in darr])
 
 
-def ascii_to_np_array(s):
+def ascii_to_np_array(s: str) -> np.ndarray:
     return np.frombuffer(s.encode(), dtype=np.uint8)
 
 
-def arr_dist(a1, a2):
-    pass
+def arr_dist(a1: np.array, a2: np.array) -> Union[int, float]:
+    return a1.astype('int64').__sub__(a2.astype('int64')).__abs__().sum()
 
 
-def find_best_place(im, np_msg):
-    pass
+def find_best_place(im: np.ndarray, np_msg: np.ndarray) -> Tuple[int, int]:
+    grades = {}
+    for row_idx, row in enumerate(im):
+        for value_idx in range(len(row)):
+
+            checked_arr = row[value_idx: value_idx + len(np_msg)]
+            if len(checked_arr) == len(np_msg):
+                checked_arr_grade = arr_dist(checked_arr, np_msg)
+                grades[(row_idx, value_idx)] = checked_arr_grade
+
+    return min(grades, key=grades.get)
 
 
 def create_image_with_msg(im, img_idx, np_msg):
@@ -126,7 +135,7 @@ if __name__ == '__main__':
 
     print(arr_dist(ascii_to_np_array(sent_message), ascii_to_np_array("gettin schwifty")) == 320)
     
-    print(find_best_place(image_raw, ascii_to_np_array("show me what you got")) == (126, 92))
+    print(find_best_place(image_raw, ascii_to_np_array("Hello")) == (110, 121))
 
     image_enc = put_message(image_raw, sent_message)
     iio.imwrite('parrot_enc.png', image_enc)  # write encrypted image to file
