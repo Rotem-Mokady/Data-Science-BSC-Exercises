@@ -193,23 +193,54 @@ class Room:
 # Question 3 - do not delete this comment
 #########################################
 class Hotel:
-    def __init__(self, name, rooms):
-        pass # replace this with your implementation
+    def __init__(self, name: str, rooms: List[Room]) -> None:
+        self.name = name
+        self.rooms = rooms
+
+    @staticmethod
+    def _fix_guest_name(name: str) -> str:
+        return name.lower()
             
-    def __repr__(self):
-        pass # replace this with your implementation
+    def __repr__(self) -> str:
+        occupied_rooms_amount = len([room for room in self.rooms if room.is_occupied()])
+        total_rooms_amount = len(self.rooms)
+
+        return f"{self.name} Hotel has: {occupied_rooms_amount}/{total_rooms_amount} occupied rooms."
                       
-    def check_in(self, guests, is_suite):
-        pass # replace this with your implementation
+    def check_in(self, guests: List[str], is_suite: bool) -> Union[Room, None]:
+        for room in self.rooms:
+            if not room.is_occupied() and room.is_suite == is_suite:
+                room.check_in(guests=guests)
+                return room
 
-    def check_out(self, guest):
-        pass # replace this with your implementation
+    def check_out(self, guest: str) -> Union[Room, None]:
+        for room in self.rooms:
+            if self._fix_guest_name(guest) in room.guests:
+                room.check_out()
+                return room
 
-    def upgrade(self, guest):
-        pass # replace this with your implementation
+    def upgrade(self, guest: str) -> Union[Room, None]:
+        guest_current_room, empty_rooms = None, []
+        for room in self.rooms:
 
-    def send_cleaner(self, guest):
-        pass  # replace this with your implementation
+            if guest_current_room is None and self._fix_guest_name(guest) in room.guests:
+                guest_current_room = room
+            elif not room.is_occupied():
+                empty_rooms.append(room)
+
+        if guest_current_room is None or not empty_rooms:
+            return
+
+        for empty_room in empty_rooms:
+            if empty_room.better_than(guest_current_room):
+                guest_current_room.move_to(empty_room)
+                return empty_room
+
+    def send_cleaner(self, guest: str) -> Union[Room, None]:
+        for room in self.rooms:
+            if self._fix_guest_name(guest) in room.guests:
+                room.clean()
+                return room
 
 
 #########################################
@@ -277,34 +308,8 @@ class Roman:
 if __name__ == '__main__':
     m = Minibar({'coke': 10, 'lemonade': 7}, {'bamba': 8,
                                               'mars': 12})
-    print(Room(m, 101, ["Shir", "Ronen"], 6, True))
-
-    r1 = Room(m, 223, ["Dana", "Ron"], 5, False)
-    r_better = Room(m, 601, [], 4, True)
-    r_better.better_than(r1)
-
-    r_better.check_in(["Amir"])
-    r_better.clean()
-    r_better.clean_level
-
-    r1.check_in(["Avi", "Hadar"])
-
-    r1.is_occupied()
-
-    r1.check_out()  ## note: None is returned
-    r1.is_occupied()
-
-    r_better.move_to(r1)
-    r1.satisfaction
-
-    r1.guests
-
-    r1.move_to(r_better)
-    r1.is_occupied()
-
-    r_better.satisfaction
-
-    r_better.guests
+    h = Hotel("Best", [Room(m, 128, [], 5, False), Room(m, 412, ["Liat"], 7,
+                                                        True)])
 
     print("*")
     # def test_hotel():
