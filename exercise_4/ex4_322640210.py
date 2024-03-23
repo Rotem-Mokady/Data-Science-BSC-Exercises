@@ -111,7 +111,7 @@ class Room:
 
     @staticmethod
     def _repr_values_handler(key: str, val: Any) -> str:
-        fixed_key_name = key.replace('_', ' ').strip().title()
+        fixed_key_name = key.replace('_', ' ').strip().capitalize()
 
         if key == 'minibar':
             return f'{fixed_key_name}:\n{val.__repr__()}'
@@ -220,18 +220,24 @@ class Hotel:
                 return room
 
     def upgrade(self, guest: str) -> Union[Room, None]:
-        guest_current_room, empty_rooms = None, []
+        guest_current_room, second_check_list = None, []
         for room in self.rooms:
-
+            # if the current guest room has been found and is still unknown, define it
             if guest_current_room is None and self._fix_guest_name(guest) in room.guests:
                 guest_current_room = room
+            # if the checked room is empty and there is still nothing to compare to, keep it
+            elif not room.is_occupied() and guest_current_room is None:
+                second_check_list.append(room)
+            # if the current guest room is familiar and the checked room is empty, upgrade if possible
             elif not room.is_occupied():
-                empty_rooms.append(room)
-
-        if guest_current_room is None or not empty_rooms:
+                if room.better_than(guest_current_room):
+                    guest_current_room.move_to(room)
+                    return room
+        # return nothing if the guest has not been found or there are no more empty rooms to compare to
+        if guest_current_room is None or not second_check_list:
             return
-
-        for empty_room in empty_rooms:
+        # do the upgrading check again for all the rooms that have not been checked
+        for empty_room in second_check_list:
             if empty_room.better_than(guest_current_room):
                 guest_current_room.move_to(empty_room)
                 return empty_room
@@ -248,117 +254,141 @@ class Hotel:
 #########################################
 
 class Roman:
-    
-    def get_int_from_roman(self):
-        rom_val = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
-        roman_string = self.roman_value.strip('-')
+
+    def __init__(self, input_value: Union[str, int]) -> None:
+        self.input_value = input_value
+
+        if isinstance(self.input_value, str):
+            self.int_value, self.roman_value = self._get_int_from_roman(self.input_value), self.input_value
+        else:
+            self.int_value, self.roman_value = self.input_value, self._get_roman_from_int(self.input_value)
+
+        self.is_neg = self.int_value < 0
+
+    @property
+    def _rom_char_to_number_conf(self) -> Dict[str, int]:
+        return {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+
+    def _get_int_from_roman(self, roman_value: str) -> int:
+        roman_string = roman_value.strip('-')
         int_val = 0
-        for counter in range(len(roman_string)):
-            if counter > 0 and rom_val[roman_string[counter]] > rom_val[roman_string[counter - 1]]:
-                int_val += rom_val[roman_string[counter]] - 2 * rom_val[roman_string[counter - 1]]
+
+        for idx, char in enumerate(roman_string):
+            current_rom_char = self._rom_char_to_number_conf[char]
+            if idx and current_rom_char > self._rom_char_to_number_conf[roman_string[idx-1]]:
+                int_val += current_rom_char - 2 * self._rom_char_to_number_conf[roman_string[idx-1]]
             else:
-                int_val += rom_val[roman_string[counter]]
-        int_val = -int_val if self.is_neg else int_val
-        return int_val
+                int_val += current_rom_char
+
+        return abs(int_val)
+
+    @property
+    def _number_to_rom_char_conf(self) -> Dict[int, str]:
+        return {
+             1000: 'M',
+             900: 'CM',
+             500: 'D',
+             400: 'CD',
+             100: 'C',
+             90: 'XC',
+             50: 'L',
+             40: 'XL',
+             10: 'X',
+             9: 'IX',
+             5: 'V',
+             4: 'IV',
+             1: 'I'
+        }
     
-    def get_roman_from_int(self):
-        num = self.int_value if not self.is_neg else -self.int_value
-        roman_num = '' if not self.is_neg else '-'
-        counter = 0
-        
-        roman_char = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
-        int_vals = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
-        
-        while num > 0:
-            for _ in range(num // int_vals[counter]):
-                roman_num += roman_char[counter]
-                num -= int_vals[counter]
-            counter += 1
-        return roman_num
+    def _get_roman_from_int(self, int_value: int) -> str:
+        if not int_value:
+            raise ValueError("Unsupported result")
+        abs_num, roman_repr = abs(int_value), '' if int_value > 0 else '-'
+
+        for int_key, rom_val in self._number_to_rom_char_conf.items():
+            if abs_num <= 0:
+                break
+            if abs_num < int_key:
+                continue
+
+            roman_repr += (abs_num // int_key) * rom_val
+            abs_num -= int_key
+
+        return roman_repr
+
+    def __repr__(self) -> str:
+        final_repr = f"int: {self.int_value}; Roman Numeral: '{self.roman_value}'"
+        return final_repr
+
+    def __neg__(self) -> 'Roman':
+        return Roman(-self.int_value)
+
+    def __add__(self, other: Union['Roman', int]) -> 'Roman':
+        int_value = self.int_value + (other if isinstance(other, int) else other.int_value)
+        return Roman(int_value)
+
+    def __lt__(self, other: Union['Roman', int]) -> bool:
+        other_int_value = other if isinstance(other, int) else other.int_value
+        return self.int_value < other_int_value
     
-    def __init__(self, input_value):
-        pass
+    def __gt__(self, other: Union['Roman', int]) -> bool:
+        other_int_value = other if isinstance(other, int) else other.int_value
+        return self.int_value > other_int_value
 
-
-    def __repr__(self):
-        pass
-
-
-    def __neg__(self):
-        pass
-
-
-    def __add__(self, other):
-        pass
-
-
-    def __lt__(self, other):
-        pass
-    
-    
-    def __gt__(self, other):
-        pass
-    
-
-    def __floordiv__(self, other):
-        pass
+    def __floordiv__(self, other: Union['Roman', str, int]) -> 'Roman':
+        int_value = self.int_value // (other if isinstance(other, int) else other.int_value)
+        return Roman(int_value)
 
 
 
 if __name__ == '__main__':
-    m = Minibar({'coke': 10, 'lemonade': 7}, {'bamba': 8,
-                                              'mars': 12})
-    h = Hotel("Best", [Room(m, 128, [], 5, False), Room(m, 412, ["Liat"], 7,
-                                                        True)])
+    def test_hotel():
+        m1 = Minibar({'coke': 10, 'lemonade': 1}, {'bamba': 8, 'mars': 12})
+        m2 = Minibar({'beer': 10, 'lemonade':4}, {'m&m': 6})
+        rooms = [Room(m2, 514, [], 5, True),
+                 Room(m2, 210, ["Ronen", "Shir"], 6, True),
+                 Room(m1, 102, ["Liat"], 7, False),
+                 Room(m2, 223, [], 6, True)]
+        h = Hotel("Dan", rooms)
+        test_sep = '\n------------------'
+        print('PRINT m1:\n', m1, test_sep, sep="")
+        print('PRINT m2:\n', m2, test_sep, sep="")
+        print('PRINT h:\n', h, test_sep, sep="")
+        liat_room = h.send_cleaner('Liat')
+        print('CALL: h.send_cleaner("Liat")\n', liat_room, test_sep, sep="")
+        print('CALL: liat_room.eat("bamba")\n', liat_room.minibar.eat("bamba"), test_sep, sep="")
+        print('PRINT liat_room.minibar:\n', liat_room.minibar, test_sep, sep="")
+        print('CALL: liat_room.drink("lemonade")\n', liat_room.minibar.drink("lemonade"), test_sep, sep="")
+        print('PRINT liat_room.minibar:\n', liat_room.minibar, test_sep, sep="")
+        print('CALL: h.upgrade("Liat")\n', h.upgrade("Liat"), test_sep, sep="")
 
-    print("*")
-    # def test_hotel():
-    #     m1 = Minibar({'coke': 10, 'lemonade': 1}, {'bamba': 8, 'mars': 12})
-    #     m2 = Minibar({'beer': 10, 'lemonade':4}, {'m&m': 6})
-    #     rooms = [Room(m2, 514, [], 5, True),
-    #              Room(m2, 210, ["Ronen", "Shir"], 6, True),
-    #              Room(m1, 102, ["Liat"], 7, False),
-    #              Room(m2, 223, [], 6, True)]
-    #     h = Hotel("Dan", rooms)
-    #     test_sep = '\n------------------'
-    #     print('PRINT m1:\n', m1, test_sep, sep="")
-    #     print('PRINT m2:\n', m2, test_sep, sep="")
-    #     print('PRINT h:\n', h, test_sep, sep="")
-    #     liat_room = h.send_cleaner('Liat')
-    #     print('CALL: h.send_cleaner("Liat")', liat_room, test_sep, sep="")
-    #     print('CALL: liat_room.eat("bamba")\n', liat_room.minibar.eat("bamba"), test_sep, sep="")
-    #     print('PRINT liat_room.minibar:\n', liat_room.minibar, test_sep, sep="")
-    #     print('CALL: liat_room.drink("lemonade")\n', liat_room.minibar.drink("lemonade"), test_sep, sep="")
-    #     print('PRINT liat_room.minibar:\n', liat_room.minibar, test_sep, sep="")
-    #     print('CALL: h.upgrade("Liat")', h.upgrade("Liat"), test_sep, sep="")
-    #
-    #     print('CALL: h.check_out("Ronen")', h.check_out("Ronen"), test_sep, sep="")
-    #     print('CALL: h.check_out("Ronen")\n', h.check_out("Ronen"), test_sep, sep="")
-    #     print('CALL: h.check_in(["Alice", "Wonder"], True)',
-    #           h.check_in(["Alice", "Wonder"], True), test_sep, sep="")
-    #     print('CALL: h.check_in(["Alex"], True)', h.check_in(["Alex"], True), test_sep,
-    #           sep="")
-    #     print('PRINT h:\n', h, test_sep, sep="")
-    #     print('CALL: h.check_in(["Oded", "Shani"], False)',
-    #           h.check_in(["Oded", "Shani"], False), test_sep, sep="")
-    #     print('CALL: h.check_in(["Oded", "Shani"], False)',
-    #           h.check_in(["Oded", "Shani"], False), test_sep, sep="")
-    #     print('CALL: h.check_out("Liat")', h.check_out("Liat"), test_sep, sep="")
-    #     print('CALL: h.check_out("Liat")\n', h.check_out("Liat"), test_sep, sep="")
-    #     print('PRINT h:\n', h, test_sep, sep="")
-    #
-    #
-    # # After you are done implementing all classes and methods, you can compare the results with the file test_hotel_output.txt
-    # test_hotel()
-    #
-    # print('==== Q4: Basic tests/output====')
-    # r2 = Roman(2)
-    # print(Roman(2))
-    # print(repr(r2))
-    # print('====')
-    # print(-Roman("IV"))
-    # print('====')
-    # r5 = Roman(2) + 3
-    # print(r5)
-    # print(repr(r5))
-    # print(repr(Roman(6) // -5))
+        print('CALL: h.check_out("Ronen")\n', h.check_out("Ronen"), test_sep, sep="")
+        print('CALL: h.check_out("Ronen")\n', h.check_out("Ronen"), test_sep, sep="")
+        print('CALL: h.check_in(["Alice", "Wonder"], True)\n',
+              h.check_in(["Alice", "Wonder"], True), test_sep, sep="")
+        print('CALL: h.check_in(["Alex"], True)\n', h.check_in(["Alex"], True), test_sep,
+              sep="")
+        print('PRINT h:\n', h, test_sep, sep="")
+        print('CALL: h.check_in(["Oded", "Shani"], False)\n',
+              h.check_in(["Oded", "Shani"], False), test_sep, sep="")
+        print('CALL: h.check_in(["Oded", "Shani"], False)\n',
+              h.check_in(["Oded", "Shani"], False), test_sep, sep="")
+        print('CALL: h.check_out("Liat")\n', h.check_out("Liat"), test_sep, sep="")
+        print('CALL: h.check_out("Liat")\n', h.check_out("Liat"), test_sep, sep="")
+        print('PRINT h:\n', h, test_sep, sep="")
+
+
+    # After you are done implementing all classes and methods, you can compare the results with the file test_hotel_output.txt
+    test_hotel()
+
+    print('==== Q4: Basic tests/output====')
+    r2 = Roman(2)
+    print(Roman(2))
+    print(repr(r2))
+    print('====')
+    print(-Roman("IV"))
+    print('====')
+    r5 = Roman(2) + 3
+    print(r5)
+    print(repr(r5))
+    print(repr(Roman(6) // -5))
