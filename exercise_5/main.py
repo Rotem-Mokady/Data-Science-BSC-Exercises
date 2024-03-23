@@ -42,13 +42,11 @@ def find_best_place(im: np.ndarray, np_msg: np.ndarray) -> Tuple[int, int]:
     best_place, smallest_delta = None, None
 
     for row_idx, row in enumerate(im):
-        for value_idx in range(len(row)):
+        for value_idx in range(len(row) - len(np_msg) + 1):
+
             checked_arr = row[value_idx: value_idx + len(np_msg)]
-
-            if len(checked_arr) != len(np_msg):
-                continue
-
             checked_arr_grade = arr_dist(checked_arr, np_msg)
+
             if smallest_delta is None or checked_arr_grade < smallest_delta:
                 best_place, smallest_delta = (row_idx, value_idx), checked_arr_grade
 
