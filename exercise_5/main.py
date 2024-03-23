@@ -39,16 +39,20 @@ def arr_dist(a1: np.array, a2: np.array) -> Union[int, float]:
 
 
 def find_best_place(im: np.ndarray, np_msg: np.ndarray) -> Tuple[int, int]:
-    grades = {}
+    best_place, smallest_delta = None, None
+
     for row_idx, row in enumerate(im):
         for value_idx in range(len(row)):
-
             checked_arr = row[value_idx: value_idx + len(np_msg)]
-            if len(checked_arr) == len(np_msg):
-                checked_arr_grade = arr_dist(checked_arr, np_msg)
-                grades[(row_idx, value_idx)] = checked_arr_grade
 
-    return min(grades, key=grades.get)
+            if len(checked_arr) != len(np_msg):
+                continue
+
+            checked_arr_grade = arr_dist(checked_arr, np_msg)
+            if smallest_delta is None or checked_arr_grade < smallest_delta:
+                best_place, smallest_delta = (row_idx, value_idx), checked_arr_grade
+
+    return best_place
 
 
 def create_image_with_msg(im, img_idx, np_msg):
