@@ -129,8 +129,9 @@ def find_coastal_effect(weather_data: pd.DataFrame, coastal_cities: List[str]) -
     temp_range_data = get_temperature_range(weather_data=weather_data)
     coastal_cities_mask = temp_range_data.index.isin(coastal_cities)
 
-    coastal_cities_avg = temp_range_data[coastal_cities_mask].mean()
-    non_coastal_cities_avg = temp_range_data[~coastal_cities_mask].mean()
+    coastal_cities_avg, non_coastal_cities_avg = (
+        temp_range_data[coastal_cities_mask].mean(), temp_range_data[~coastal_cities_mask].mean()
+    )
 
     return coastal_cities_avg - non_coastal_cities_avg
 
@@ -141,8 +142,7 @@ def add_rainy_days(weather_data: pd.DataFrame) -> pd.DataFrame:
     added_row = prepared_data.apply(lambda x: 0 if x.name == 'day' else (x < 20).sum())
     added_row.name = 'Rainy Days'
 
-    result = prepared_data.append(added_row)
-    return result
+    return prepared_data.append(added_row)
 
 
 if __name__ == '__main__':
