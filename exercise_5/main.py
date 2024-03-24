@@ -26,11 +26,11 @@ def get_distance_from_linear_change(training_data) -> np.ndarray:
 
 #######################################################################
 # Question 2 - image processing
-def np_array_to_ascii(darr: np.ndarray) -> str:
+def np_array_to_ascii(darr: np.array) -> str:
     return ''.join([chr(item) for item in darr])
 
 
-def ascii_to_np_array(s: str) -> np.ndarray:
+def ascii_to_np_array(s: str) -> np.array:
     return np.frombuffer(s.encode(), dtype=np.uint8)
 
 
@@ -38,7 +38,7 @@ def arr_dist(a1: np.array, a2: np.array) -> Union[int, float]:
     return a1.astype('int64').__sub__(a2.astype('int64')).__abs__().sum()
 
 
-def find_best_place(im: np.ndarray, np_msg: np.ndarray) -> Tuple[int, int]:
+def find_best_place(im: np.ndarray, np_msg: np.array) -> Tuple[int, int]:
     best_place, smallest_delta = None, None
 
     for row_idx, row in enumerate(im):
@@ -53,16 +53,31 @@ def find_best_place(im: np.ndarray, np_msg: np.ndarray) -> Tuple[int, int]:
     return best_place
 
 
-def create_image_with_msg(im, img_idx, np_msg):
-    pass
+def create_image_with_msg(im: np.ndarray, img_idx: Tuple[int, int], np_msg: np.array) -> np.ndarray:
+    _im = im.copy()
+    row_index, internal_row_index = img_idx
+    msg_size = len(np_msg)
+
+    _im[row_index][internal_row_index: internal_row_index + msg_size] = np_msg
+    _im[0][0], _im[0][1], _im[0][2] = row_index, internal_row_index, msg_size
+
+    return _im
 
 
-def put_message(im, msg):
-    pass
+def put_message(im: np.ndarray, msg: str) -> np.ndarray:
+    np_msg = ascii_to_np_array(s=msg)
+    best_index = find_best_place(im=im, np_msg=np_msg)
+    new_im = create_image_with_msg(im=im, img_idx=best_index, np_msg=np_msg)
+
+    return new_im
 
 
-def get_message(im):
-    pass
+def get_message(im: np.ndarray) -> str:
+    row_index, internal_row_index, msg_size = im[0][0], im[0][1], im[0][2]
+    np_msg = im[row_index][internal_row_index: internal_row_index + msg_size]
+    msg = np_array_to_ascii(darr=np_msg)
+
+    return msg
 
 
 #######################################################################
