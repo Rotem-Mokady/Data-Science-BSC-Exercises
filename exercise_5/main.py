@@ -82,41 +82,67 @@ def get_message(im: np.ndarray) -> str:
 
 #######################################################################
 # Question 3 - pandas
-def load_weather_csv(file_name):
-    pass
+def load_weather_csv(file_name: str) -> pd.DataFrame:
+    return pd.read_csv(file_name)
 
 
-def impute_to_mean(weather_data):
-    pass
+def impute_to_mean(weather_data: pd.DataFrame) -> pd.DataFrame:
+    return weather_data.apply(
+        lambda x: x if x.name == 'day' else x.fillna(x.mean())
+    )
 
 
-def fix_to_celsius(weather_data):
-    pass
+def fix_to_celsius(weather_data: pd.DataFrame) -> pd.DataFrame:
+    return weather_data.apply(
+        lambda x: x.apply(lambda c: (c - 32) * 5 / 9) if x.min() > 40 else x
+    )
 
 # Helper function to run all Question 2 steps in one line.
 # feel free to use, but don't change!
-def clean_data(weather_data):
+
+
+def clean_data(weather_data: pd.DataFrame) -> pd.DataFrame:
     return fix_to_celsius(impute_to_mean(weather_data))
 
 
-def add_week_index(weather_data):
-    pass
+def add_week_index(weather_data: pd.DataFrame) -> pd.DataFrame:
+    weather_data.loc[:, 'week'] = weather_data.index // 7 + 1
+    return weather_data
 
 
-def get_weekly_mean(weather_data):
-    pass
+def get_weekly_mean(weather_data: pd.DataFrame) -> pd.DataFrame:
+    prepared_data = clean_data(weather_data=weather_data)
+    df_with_week_idx = add_week_index(weather_data=prepared_data)
+
+    result = df_with_week_idx.drop('day', axis=1).groupby('week').mean()
+    return result
 
 
-def get_temperature_range(weather_data):
-    pass
+def get_temperature_range(weather_data: pd.DataFrame) -> pd.Series:
+    prepared_data = clean_data(weather_data=weather_data)
+    result = prepared_data.drop('day', axis=1).apply(lambda x: x.max() - x.min())
+
+    return result
 
 
-def find_coastal_effect(weather_data, coastal_cities):
-    pass
+def find_coastal_effect(weather_data: pd.DataFrame, coastal_cities: List[str]) -> Union[int, float]:
+    temp_range_data = get_temperature_range(weather_data=weather_data)
+    coastal_cities_mask = temp_range_data.index.isin(coastal_cities)
+
+    coastal_cities_avg = temp_range_data[coastal_cities_mask].mean()
+    non_coastal_cities_avg = temp_range_data[~coastal_cities_mask].mean()
+
+    return coastal_cities_avg - non_coastal_cities_avg
 
 
-def add_rainy_days(weather_data):
-    pass
+def add_rainy_days(weather_data: pd.DataFrame) -> pd.DataFrame:
+    prepared_data = clean_data(weather_data=weather_data)
+
+    added_row = prepared_data.apply(lambda x: 0 if x.name == 'day' else (x < 20).sum())
+    added_row.name = 'Rainy Days'
+
+    result = prepared_data.append(added_row)
+    return result
 
 
 if __name__ == '__main__':
