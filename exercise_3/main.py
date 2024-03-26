@@ -32,7 +32,7 @@ def k_bonacci(n: int, k: int) -> int:
 def climb_combinations(n: int) -> int:
     if n < 0:
         raise ValueError("input number must be positive")
-    if n <= 3:
+    if n < 4:
         return 1
     result = climb_combinations(n - 1) + climb_combinations(n - 4)
     return result
@@ -81,13 +81,13 @@ def weigh_str_efficient(input_str: str, index: int = 0) -> Union[int, float]:
 # Question 4 - do not delete this comment
 #########################################
 def find_num_changes_rec(n: int, lst: List[int]) -> int:
-    if not n:
+    if not n or lst == [1]:
         return 1
     if n < 0 or not lst:
         return 0
 
-    array_prep = sorted(set(lst))
-    greater_num, new_array = array_prep[-1], array_prep[:-1]
+    array_prep = sorted(set(lst), reverse=True)
+    greater_num, new_array = array_prep[0], array_prep[1:]
 
     result = find_num_changes_rec(n - greater_num, array_prep) + find_num_changes_rec(n, new_array)
     return result
