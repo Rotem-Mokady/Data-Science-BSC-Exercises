@@ -81,10 +81,13 @@ def weigh_str_efficient(input_str: str, index: int = 0) -> Union[int, float]:
 # Question 4 - do not delete this comment
 #########################################
 def find_num_changes_rec(n: int, lst: List[int]) -> int:
-    if not n or lst == [1]:
+    if not n:
         return 1
     if n < 0 or not lst:
         return 0
+    # handle cases when there is only one available type of coins
+    if len(lst) == 1:
+        return 1 if not n % lst[0] else 0
 
     array_prep = sorted(set(lst), reverse=True)
     greater_num, new_array = array_prep[0], array_prep[1:]
@@ -193,6 +196,8 @@ if __name__ == "__main__":
     print(find_num_changes_rec(-1, [1, 2, 5, 6]) == 0)
     print(find_num_changes_rec(20, []) == 0)
     print(find_num_changes_rec(1, [3,4,5]) == 0)
+    print(find_num_changes_rec(9, [3]) == 1)
+    print(find_num_changes_rec(9, [4]) == 0)
     print(find_num_changes_rec(105,[1,105,999,100]) ==3)
 
     #Question 5.a tests - you can and should add more
