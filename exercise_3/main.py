@@ -31,7 +31,7 @@ def k_bonacci(n: int, k: int) -> int:
 #########################################
 def climb_combinations(n: int) -> int:
     if n < 0:
-        raise RuntimeError("input number must be positive")
+        raise ValueError("input number must be positive")
     if n <= 3:
         return 1
     result = climb_combinations(n - 1) + climb_combinations(n - 4)
